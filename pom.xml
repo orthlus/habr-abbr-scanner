@@ -17,6 +17,7 @@
         <telegrambots.version>6.1.0</telegrambots.version>
 
         <jooq.version>3.17.6</jooq.version>
+        <!--jooq generate-->
         <db.url>jdbc:postgresql://localhost:5432/postgres</db.url>
         <db.user>habr_abbr_scanner_ro</db.user>
         <db.password>password</db.password>
