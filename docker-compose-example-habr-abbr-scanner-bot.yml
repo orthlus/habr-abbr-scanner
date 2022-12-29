@@ -1,0 +1,14 @@
+version: '3.1'
+
+services:
+  habr-abbr-scanner:
+    image: habr-abbr-scanner:latest
+    restart: always
+    environment:
+      BOT_TOKEN: 00000000000:AFASDFSCVASAFAFAFAFAF
+      BOT_NICKNAME: habr_abbr_scanner_bot
+      ADMIN_TELEGRAM_ID: 0000000
+      TELEGRAM_CHANNEL_ID: -00000000000000
+      DB_URL: jdbc:postgresql://localhost:5432/postgres
+      DB_USER: habr_abbr_scanner_ro
+      DB_PASSWORD: password
