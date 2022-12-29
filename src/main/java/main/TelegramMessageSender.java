@@ -13,16 +13,10 @@ import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 public class TelegramMessageSender extends TelegramLongPollingBot {
 	@Value("${telegram.channel_id}")
 	private String channelId;
-	@Value("${telegram.admin_id}")
-	private String adminId;
 	@Value("${telegram.bot.nickname}")
 	private String botNickname;
 	@Value("${telegram.bot.token}")
 	private String botToken;
-
-	public void sendAdminMessage(String message) {
-		sendMessage(adminId, message);
-	}
 
 	public void sendChannelMessage(String message) {
 		sendMessage(channelId, message);
