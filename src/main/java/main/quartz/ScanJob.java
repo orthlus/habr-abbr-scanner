@@ -5,68 +5,57 @@ import lombok.extern.slf4j.Slf4j;
 import main.AppState;
 import main.Db;
 import main.HabrClient;
-import main.ScanJobsHelper;
-import main.exceptions.HabrHttpException;
+import main.TelegramMessageSender;
 import org.quartz.DisallowConcurrentExecution;
 import org.quartz.Job;
 import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
 import org.springframework.stereotype.Component;
 
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
+import java.util.stream.IntStream;
 
 @Slf4j
 @Component
 @DisallowConcurrentExecution
 @RequiredArgsConstructor
 public class ScanJob implements Job {
-	private final AppState appState;
 	private final Db db;
 	private final HabrClient habrClient;
-	private final ScanJobsHelper scanJobsHelper;
+	private final TelegramMessageSender telegram;
+
+	private record Post(int id, boolean hasAbbr){}
 
 	private void scanNewPosts() {
-		Map<Integer, Boolean> posts = new HashMap<>();
-		try {
-			int maxSitePostId = habrClient.getMaxPostIdFromRss();
-			for (Integer postId : db.getUnprocessedPostsIds(maxSitePostId)) {
-				boolean postHasABBR = habrClient.isPostHasABBR(postId);
-				posts.put(postId, postHasABBR);
-				db.saveNewPost(postId, postHasABBR);
-			}
-		} catch (HabrHttpException e) {
-			if (!posts.isEmpty()) {
-				db.saveNewPosts(posts);
-				scanJobsHelper.sendTelegramMessages(posts);
-			}
-			appState.swapAppState();
-			return;
+		int maxSitePostId = habrClient.getMaxPostIdFromRss();
+		int lastScannedPostId = db.getLastScannedPostId();
+		List<Post> postsWithAbbr = IntStream
+				.rangeClosed(lastScannedPostId + 1, maxSitePostId)
+				.mapToObj(postId -> new Post(postId, habrClient.isPostHasABBR(postId)))
+				.filter(post -> post.hasAbbr)
+				.toList();
+		for (Post post : postsWithAbbr) {
+			String msg = telegramMsg(post);
+			telegram.sendChannelMessage(msg);
 		}
-		if (posts.isEmpty()) {
-			return;
-		}
-		db.saveNewPosts(posts);
-		scanJobsHelper.sendTelegramMessages(posts);
+		db.updateLastScanned(maxSitePostId);
 	}
 
-	private void sendToTelegramOldIds() {
-		List<Integer> notSentToTelegramPostsHasAbbr = db.getNotSentToTelegramPostsHasAbbr();
-		if (notSentToTelegramPostsHasAbbr.isEmpty()) {
-			return;
-		}
-
-		Map<Integer, Boolean> toSend = new HashMap<>();
-		notSentToTelegramPostsHasAbbr.forEach(id -> toSend.put(id, true));
-		scanJobsHelper.sendTelegramMessages(toSend);
+	private String telegramMsg(Post post) {
+		return """
+				Новый пост с аббревиатурой:
+				https://habr.com/ru/post/%s/
+				""".formatted(post.id);
 	}
 
 	@Override
 	public void execute(JobExecutionContext context) throws JobExecutionException {
 		log.info("ScanJob start");
-		scanNewPosts();
-		sendToTelegramOldIds();
+		try {
+			scanNewPosts();
+		} catch (Exception e) {
+			throw new JobExecutionException(e);
+		}
 		log.info("ScanJob finish");
 	}
 }

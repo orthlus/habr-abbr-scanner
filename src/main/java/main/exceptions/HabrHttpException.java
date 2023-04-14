@@ -1,4 +1,4 @@
 package main.exceptions;
 
-public class HabrHttpException extends Exception {
+public class HabrHttpException extends RuntimeException {
 }
