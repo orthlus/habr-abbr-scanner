@@ -3,6 +3,6 @@ target
 deploy.bat
 docker*.yml
 !docker-compose-example*.yml
-application.properties
+*dev.properties
 *.sql
 !example.sql
