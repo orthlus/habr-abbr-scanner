@@ -24,7 +24,9 @@ public class TelegramMessageSender extends TelegramLongPollingBot {
 
 	private void sendMessage(String userId, String message) {
 		try {
-			execute(new SendMessage(userId, message));
+			SendMessage msg = new SendMessage(userId, message);
+			msg.disableWebPagePreview();
+			execute(msg);
 		} catch (TelegramApiException e) {
 			log.error("Ошибка отправки сообщения", e);
 		}
