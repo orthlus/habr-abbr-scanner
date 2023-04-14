@@ -1,27 +1,11 @@
 CREATE SCHEMA habr_abbr_scanner;
 SET SEARCH_PATH = 'habr_abbr_scanner';
-CREATE TABLE posts
+
+CREATE TABLE last_scan_post
 (
-    id int PRIMARY KEY,
-    has_abbr boolean NOT NULL,
-    timestamp timestamp DEFAULT timezone('Europe/Moscow'::text, CURRENT_TIMESTAMP)
+    id int
 );
--- INSERT INTO posts (id, has_abbr) VALUES (690002,false);
-CREATE TABLE telegram_messages
-(
-    post_id int PRIMARY KEY,
-    timestamp timestamp DEFAULT timezone('Europe/Moscow'::text, CURRENT_TIMESTAMP)
-);
-CREATE TABLE not_found_posts
-(
-    id int PRIMARY KEY,
-    timestamp timestamp DEFAULT timezone('Europe/Moscow'::text, CURRENT_TIMESTAMP)
-);
-CREATE TABLE access_denied_posts
-(
-    id int PRIMARY KEY,
-    timestamp timestamp DEFAULT timezone('Europe/Moscow'::text, CURRENT_TIMESTAMP)
-);
+INSERT INTO last_scan_post (id) VALUES (690000);
 
 GRANT USAGE ON SCHEMA habr_abbr_scanner TO habr_abbr_scanner_ro;
-GRANT SELECT, INSERT ON ALL TABLES IN SCHEMA habr_abbr_scanner TO habr_abbr_scanner_ro;
+GRANT SELECT, UPDATE ON habr_abbr_scanner.last_scan_post TO habr_abbr_scanner_ro;
