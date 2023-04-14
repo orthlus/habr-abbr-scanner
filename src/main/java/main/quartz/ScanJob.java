@@ -2,7 +2,6 @@ package main.quartz;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import main.AppState;
 import main.Db;
 import main.HabrClient;
 import main.TelegramMessageSender;
@@ -12,7 +11,6 @@ import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
 import org.springframework.stereotype.Component;
 
-import java.util.List;
 import java.util.stream.IntStream;
 
 @Slf4j
@@ -50,6 +48,7 @@ public class ScanJob implements Job {
 		try {
 			scanNewPosts();
 		} catch (Exception e) {
+			log.error("scan error", e);
 			throw new JobExecutionException(e);
 		}
 		log.info("ScanJob finish");
