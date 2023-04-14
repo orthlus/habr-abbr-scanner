@@ -1,5 +1,6 @@
 package main.quartz;
 
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import main.AppState;
 import main.Db;
@@ -22,15 +23,12 @@ import java.util.Map;
 @Slf4j
 @Component
 @DisallowConcurrentExecution
+@RequiredArgsConstructor
 public class ScanJob implements Job {
-	@Autowired
-	private AppState appState;
-	@Autowired
-	private Db db;
-	@Autowired
-	private HabrClient habrClient;
-	@Autowired
-	private ScanJobsHelper scanJobsHelper;
+	private final AppState appState;
+	private final Db db;
+	private final HabrClient habrClient;
+	private final ScanJobsHelper scanJobsHelper;
 
 	private void scanNewPosts() {
 		Map<Integer, Boolean> posts = new HashMap<>();
