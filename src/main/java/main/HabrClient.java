@@ -133,21 +133,18 @@ public class HabrClient {
 		}
 	}
 
-	public boolean isPostHasABBR(int postId) throws PageNotFoundException, HabrHttpException, PageAccessDeniedException {
+	public boolean isPostHasABBR(int postId) throws HabrHttpException {
 		String url = "https://habr.com/ru/post/%d/".formatted(postId);
 		try {
 			RequestBuilder request = RequestBuilder.get(url);
 			CloseableHttpResponse response = execute(request);
-			if (getStatusCode(response) == 404) {
-				log.info("Page {} not found", postId);
-				throw new PageNotFoundException();
+			int code = getStatusCode(response);
+			if (code == 404 || code == 403) {
+				log.info("Page {} code {}", postId, code);
+				return false;
 			}
-			if (getStatusCode(response) == 403) {
-				log.info("Page {} access denied", postId);
-				throw new PageAccessDeniedException();
-			}
-			if (getStatusCode(response) != 200) {
-				log.info("Page {} getting error, code {}", postId, getStatusCode(response));
+			if (code != 200) {
+				log.info("Page {} getting error, code {}", postId, code);
 				throw new IOException();
 			}
 			String pageContent = textFromResponse(response);

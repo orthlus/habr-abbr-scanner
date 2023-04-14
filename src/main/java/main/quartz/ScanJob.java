@@ -7,13 +7,10 @@ import main.Db;
 import main.HabrClient;
 import main.ScanJobsHelper;
 import main.exceptions.HabrHttpException;
-import main.exceptions.PageAccessDeniedException;
-import main.exceptions.PageNotFoundException;
 import org.quartz.DisallowConcurrentExecution;
 import org.quartz.Job;
 import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.util.HashMap;
@@ -34,18 +31,11 @@ public class ScanJob implements Job {
 		Map<Integer, Boolean> posts = new HashMap<>();
 		try {
 			int maxSitePostId = habrClient.getMaxPostIdFromRss();
-			for (Integer postId : db.getUnprocessedPostsIds(maxSitePostId))
-				try {
-					boolean postHasABBR = habrClient.isPostHasABBR(postId);
-					posts.put(postId, postHasABBR);
-					db.saveNewPost(postId, postHasABBR);
-				} catch (PageNotFoundException e) {
-					db.saveNotFoundPost(postId);
-					log.info("not found post id {} saved", postId);
-				} catch (PageAccessDeniedException e) {
-					db.saveAccessDeniedPost(postId);
-					log.info("access denied post id {} saved", postId);
-				}
+			for (Integer postId : db.getUnprocessedPostsIds(maxSitePostId)) {
+				boolean postHasABBR = habrClient.isPostHasABBR(postId);
+				posts.put(postId, postHasABBR);
+				db.saveNewPost(postId, postHasABBR);
+			}
 		} catch (HabrHttpException e) {
 			if (!posts.isEmpty()) {
 				db.saveNewPosts(posts);
