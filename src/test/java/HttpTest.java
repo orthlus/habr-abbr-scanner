@@ -1,7 +1,5 @@
 import main.HabrClient;
 import main.exceptions.HabrHttpException;
-import main.exceptions.PageAccessDeniedException;
-import main.exceptions.PageNotFoundException;
 
 import java.util.LinkedList;
 import java.util.List;
@@ -23,9 +21,7 @@ public class HttpTest {
 		for (Integer id : postIds) {
 			try {
 				habrClient.isPostHasABBR(id);
-			} catch (PageNotFoundException | HabrHttpException e) {
-			} catch (PageAccessDeniedException e) {
-				throw new RuntimeException(e);
+			} catch (HabrHttpException e) {
 			}
 		}
 	}

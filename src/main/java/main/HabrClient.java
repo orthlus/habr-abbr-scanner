@@ -1,12 +1,8 @@
 package main;
 
 import com.fasterxml.jackson.dataformat.xml.XmlMapper;
-import lombok.AllArgsConstructor;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import main.exceptions.HabrHttpException;
-import main.exceptions.PageAccessDeniedException;
-import main.exceptions.PageNotFoundException;
 import main.rss.RssAdapter;
 import main.rss.RssFeed;
 import main.rss.RssItem;
