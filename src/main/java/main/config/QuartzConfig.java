@@ -23,7 +23,7 @@ public class QuartzConfig {
 				.ofType(ScanJob.class)
 				.build();
 		SimpleTrigger scanTrigger = TriggerBuilder.newTrigger()
-				.withSchedule(repeatHourlyForever())
+				.withSchedule(repeatHourlyForever(2))
 				.withIdentity(scanJob)
 				.build();
 
