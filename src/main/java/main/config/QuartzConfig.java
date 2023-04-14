@@ -1,6 +1,5 @@
 package main.config;
 
-import main.quartz.RareScanJob;
 import main.quartz.ScanJob;
 import main.quartz.WaitingUnlockHttpJob;
 import org.quartz.*;
@@ -8,9 +7,6 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.scheduling.quartz.SchedulerFactoryBean;
-
-import java.time.ZoneId;
-import java.util.TimeZone;
 
 import static org.quartz.SimpleScheduleBuilder.repeatHourlyForever;
 import static org.quartz.SimpleScheduleBuilder.repeatMinutelyForever;
@@ -21,19 +17,6 @@ public class QuartzConfig {
 	private int minutesToWaitUnlockHabrHttp;
 	@Bean
 	public Scheduler scheduler(SchedulerFactoryBean factory) throws SchedulerException {
-		TriggerKey rareScanJob = TriggerKey.triggerKey(RareScanJob.class.getName());
-		JobDetail rareScanJobDetail = JobBuilder.newJob()
-				.storeDurably()
-				.ofType(RareScanJob.class)
-				.build();
-		CronTrigger rareScanTrigger = TriggerBuilder.newTrigger()
-				.withSchedule(CronScheduleBuilder
-						.cronSchedule("0 0 6 * * ?")
-						.inTimeZone(TimeZone.getTimeZone(ZoneId.of("Europe/Moscow"))))
-				.withIdentity(rareScanJob)
-				.build();
-
-
 		TriggerKey scanJob = TriggerKey.triggerKey(ScanJob.class.getName());
 		JobDetail scanJobDetail = JobBuilder.newJob()
 				.storeDurably()
@@ -58,7 +41,6 @@ public class QuartzConfig {
 		Scheduler scheduler = factory.getScheduler();
 		scheduler.scheduleJob(scanJobDetail, scanTrigger);
 		scheduler.scheduleJob(waitingUnlockHttpJobDetail, waitingUnlockHttpTrigger);
-		scheduler.scheduleJob(rareScanJobDetail, rareScanTrigger);
 		scheduler.start();
 
 		scheduler.pauseTrigger(unlockHttpJob);
