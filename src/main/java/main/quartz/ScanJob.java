@@ -29,15 +29,14 @@ public class ScanJob implements Job {
 	private void scanNewPosts() {
 		int maxSitePostId = habrClient.getMaxPostIdFromRss();
 		int lastScannedPostId = db.getLastScannedPostId();
-		List<Post> postsWithAbbr = IntStream
+		IntStream
 				.rangeClosed(lastScannedPostId + 1, maxSitePostId)
 				.mapToObj(postId -> new Post(postId, habrClient.isPostHasABBR(postId)))
 				.filter(post -> post.hasAbbr)
-				.toList();
-		for (Post post : postsWithAbbr) {
-			String msg = telegramMsg(post);
-			telegram.sendChannelMessage(msg);
-		}
+				.forEach(post -> {
+					String msg = telegramMsg(post);
+					telegram.sendChannelMessage(msg);
+				});
 		db.updateLastScanned(maxSitePostId);
 	}
 
