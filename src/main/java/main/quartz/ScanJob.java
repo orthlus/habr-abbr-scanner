@@ -24,27 +24,24 @@ public class ScanJob implements Job {
 	private final HabrClient habrClient;
 	private final TelegramMessageSender telegram;
 
-	private record Post(int id, boolean hasAbbr){}
-
 	private void scanNewPosts() {
 		int maxSitePostId = habrClient.getMaxPostIdFromRss();
 		int lastScannedPostId = db.getLastScannedPostId();
 		IntStream
 				.rangeClosed(lastScannedPostId + 1, maxSitePostId)
-				.mapToObj(postId -> new Post(postId, habrClient.isPostHasABBR(postId)))
-				.filter(post -> post.hasAbbr)
-				.forEach(post -> {
-					String msg = telegramMsg(post);
+				.filter(habrClient::isPostHasABBR)
+				.forEach(postId -> {
+					String msg = telegramMsg(postId);
 					telegram.sendChannelMessage(msg);
 				});
 		db.updateLastScanned(maxSitePostId);
 	}
 
-	private String telegramMsg(Post post) {
+	private String telegramMsg(int postId) {
 		return """
 				Новый пост с аббревиатурой:
 				https://habr.com/ru/post/%s/
-				""".formatted(post.id);
+				""".formatted(postId);
 	}
 
 	@Override
