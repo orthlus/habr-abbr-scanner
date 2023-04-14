@@ -4,5 +4,5 @@ deploy.bat
 docker*.yml
 !docker-compose-example*.yml
 *dev.properties
-*.sql
+roles.sql
 !example.sql
