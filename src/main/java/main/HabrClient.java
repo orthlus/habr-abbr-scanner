@@ -9,6 +9,7 @@ import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
@@ -20,12 +21,16 @@ import java.util.regex.Pattern;
 @Slf4j
 @Component
 public class HabrClient {
+	@Value("${habr.http.timeout}")
+	private int timeout;
+	@Value("${habr.http.delay}")
+	private int delay;
 	@Autowired
 	private RssAdapter rssAdapter;
 
 	private OkHttpClient client = new OkHttpClient.Builder()
-			.callTimeout(10, TimeUnit.SECONDS)
-			.addInterceptor(new HttpDelayInterceptor(10))
+			.callTimeout(timeout, TimeUnit.SECONDS)
+			.addInterceptor(new HttpDelayInterceptor(delay))
 			.build();
 	private XmlMapper xmlMapper = new XmlMapper();
 
