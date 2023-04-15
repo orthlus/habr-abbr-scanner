@@ -6,7 +6,6 @@ services:
     restart: always
     environment:
       BOT_TOKEN: 00000000000:AFASDFSCVASAFAFAFAFAF
-      BOT_NICKNAME: habr_abbr_scanner_bot
       TELEGRAM_CHANNEL_ID: -00000000000000
       DB_URL: jdbc:postgresql://localhost:5432/postgres
       DB_USER: habr_abbr_scanner_ro
