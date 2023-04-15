@@ -5,24 +5,22 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.bots.DefaultAbsSender;
 import org.telegram.telegrambots.bots.DefaultBotOptions;
-import org.telegram.telegrambots.bots.TelegramLongPollingBot;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
-import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 
 @Component
 @Slf4j
-public class TelegramMessageSender extends DefaultAbsSender {
+public class Telegram extends DefaultAbsSender {
 	@Value("${telegram.channel_id}")
 	private String channelId;
 	@Value("${telegram.bot.token}")
 	private String botToken;
 
-	public TelegramMessageSender() {
+	public Telegram() {
 		this(new DefaultBotOptions());
 	}
 
-	public TelegramMessageSender(DefaultBotOptions options) {
+	public Telegram(DefaultBotOptions options) {
 		super(options);
 	}
 

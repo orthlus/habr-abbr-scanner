@@ -4,7 +4,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import main.Db;
 import main.HabrClient;
-import main.TelegramMessageSender;
+import main.Telegram;
 import org.quartz.DisallowConcurrentExecution;
 import org.quartz.Job;
 import org.quartz.JobExecutionContext;
@@ -20,7 +20,7 @@ import java.util.stream.IntStream;
 public class ScanJob implements Job {
 	private final Db db;
 	private final HabrClient habrClient;
-	private final TelegramMessageSender telegram;
+	private final Telegram telegram;
 
 	private void scanNewPosts() {
 		int maxSitePostId = habrClient.getMaxPostIdFromRss();
