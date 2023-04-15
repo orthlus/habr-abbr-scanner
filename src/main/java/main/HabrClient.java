@@ -2,7 +2,6 @@ package main;
 
 import com.fasterxml.jackson.dataformat.xml.XmlMapper;
 import lombok.extern.slf4j.Slf4j;
-import main.exceptions.HabrHttpException;
 import main.rss.RssAdapter;
 import main.rss.RssFeed;
 import main.rss.RssItem;
@@ -62,7 +61,7 @@ public class HabrClient {
 		}
 	}
 
-	public int getMaxPostIdFromRss() throws HabrHttpException {
+	public int getMaxPostIdFromRss() {
 		return getLastPostsFromRss().stream()
 				.map(RssItem::getPostId)
 				.mapToInt(Integer::intValue)

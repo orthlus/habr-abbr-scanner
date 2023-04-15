@@ -1,11 +1,10 @@
 import main.HabrClient;
-import main.exceptions.HabrHttpException;
 
 import java.util.regex.MatchResult;
 import java.util.regex.Pattern;
 
 public class RegexpTest {
-	public static void main(String[] args) throws HabrHttpException {
+	public static void main(String[] args) {
 		String pageContent = "";
 		String pattern = "<article id=\"\\d+\"";
 		int strings = Pattern.compile(pattern).matcher(pageContent).results()

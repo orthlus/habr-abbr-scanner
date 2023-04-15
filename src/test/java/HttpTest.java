@@ -1,5 +1,4 @@
 import main.HabrClient;
-import main.exceptions.HabrHttpException;
 
 import java.util.LinkedList;
 import java.util.List;
