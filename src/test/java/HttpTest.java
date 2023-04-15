@@ -19,10 +19,7 @@ public class HttpTest {
 			postIds.addAll(postIds);
 		}
 		for (Integer id : postIds) {
-			try {
-				habrClient.isPostHasABBR(id);
-			} catch (HabrHttpException e) {
-			}
+			habrClient.isPostHasABBR(id);
 		}
 	}
 }

@@ -6,6 +6,9 @@ import main.exceptions.HabrHttpException;
 import main.rss.RssAdapter;
 import main.rss.RssFeed;
 import main.rss.RssItem;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.Response;
 import org.apache.http.client.config.RequestConfig;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.RequestBuilder;
@@ -27,6 +30,10 @@ import java.util.regex.Pattern;
 @Component
 public class HabrClient {
 	private CloseableHttpClient httpClient;
+	private OkHttpClient client = new OkHttpClient.Builder()
+			.callTimeout(10, TimeUnit.SECONDS)
+			.addInterceptor(new HttpDelayInterceptor(10))
+			.build();
 	private final RequestConfig requestConfig;
 
 	private int countReconnects = 0;
@@ -76,19 +83,39 @@ public class HabrClient {
 		return response;
 	}
 
-	public boolean isAlive() throws HabrHttpException {
-		String url = "https://habr.com/ru/all";
-		RequestBuilder request = RequestBuilder.get(url);
-		try {
-			CloseableHttpResponse response = execute(request);
-			return getStatusCode(response) == 200;
+	public List<RssItem> getLastPostsFromRss() {
+		String url = "https://habr.com/ru/rss/all/all/?fl=ru";
+		Request request = new Request.Builder().get().url(url).build();
+		try (Response response = call(request)) {
+			String text = text(response);
+			RssFeed feed = xmlMapper.readValue(text, RssFeed.class);
+			return rssAdapter.convert(feed.getPosts());
 		} catch (IOException e) {
-			log.error("http error - HabrClient.isAlive", e);
-			return false;
+			log.error("http error - HabrClient.getLastPostsIds", e);
+			return List.of();
 		}
 	}
 
-	public List<RssItem> getLastPostsFromRss() throws HabrHttpException {
+	@SuppressWarnings("DataFlowIssue")
+	private String text(Response response) {
+		try {
+			return response.body().string();
+		} catch (IOException | NullPointerException e) {
+			log.error("error getting body of response {}", response);
+			throw new RuntimeException(e);
+		}
+	}
+
+	private Response call(Request request) {
+		try {
+			return client.newCall(request).execute();
+		} catch (IOException e) {
+			log.error("http error by request {} - {}", request, e.getMessage());
+			throw new RuntimeException(e);
+		}
+	}
+
+	public List<RssItem> getLastPostsFromRss1() throws HabrHttpException {
 		String url = "https://habr.com/ru/rss/all/all/?fl=ru";
 		RequestBuilder request = RequestBuilder.get(url);
 		try {
@@ -129,7 +156,28 @@ public class HabrClient {
 		}
 	}
 
-	public boolean isPostHasABBR(int postId) throws HabrHttpException {
+	public boolean isPostHasABBR(int postId) {
+		String url = "https://habr.com/ru/post/%d/".formatted(postId);
+		Request request = new Request.Builder().get().url(url).build();
+		try (Response response = call(request)) {
+			int code = response.code();
+			if (code == 404 || code == 403) {
+				log.info("Page {} code {}", postId, code);
+				return false;
+			}
+			if (code != 200) {
+				log.info("Page {} getting error, code {}", postId, code);
+				throw new IOException();
+			}
+			String text = text(response);
+			return text.contains("class=\"habraabbr\"");
+		} catch (IOException e) {
+			log.error("http error - HabrClient.isPostHasABBR", e);
+			return false;
+		}
+	}
+
+	public boolean isPostHasABBR1(int postId) throws HabrHttpException {
 		String url = "https://habr.com/ru/post/%d/".formatted(postId);
 		try {
 			RequestBuilder request = RequestBuilder.get(url);
