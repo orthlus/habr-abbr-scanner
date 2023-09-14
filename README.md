@@ -5,6 +5,8 @@
 
 работающий канал - https://t.me/habr_abbr_scan
 
+код перенёс в [другой репо](https://github.com/orthlus/telegram-pack/tree/master/src/main/java/main/habr)
+
 ### подготовка telegram
 1. создать бота в [BotFather](https://t.me/BotFather)
 2. создать публичный канал
